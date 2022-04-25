@@ -1,8 +1,24 @@
 import json
+import mysql.connector
 import logging
 from flask import Flask, request, make_response, jsonify
 
 app = Flask(__name__)
+def save_to_db(name, program):
+    mydb = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        passwd="Mine963258741",
+        database="testdb",
+    )
+    mycursor = mydb.cursor()
+    sql = "INSERT INTO students (name, program) VALUES (%s, %s)"
+    val = (name, program)
+    mycursor.execute(sql, val)
+    mydb.commit()
+    mycursor.close()
+    mydb.close()
+
 @app.route("/")
 def index():
     app.logger.info("Someone landed in our page!")
@@ -25,9 +41,7 @@ def display_data():
 @app.route("/save/<name>")
 def save(name):
     app.logger.info("Someone request wants to save data")
-    with open('data.txt', 'a') as f:
-        f.write('\n'+name)
-        f.close()
+    save_to_db(name, "Software Engineering")
     jsonbody = {
         "student" : name,
     }
