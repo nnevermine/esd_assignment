@@ -19,6 +19,7 @@ def save_to_db(name, program):
     mycursor.close()
     mydb.close()
 
+
 @app.route("/")
 def index():
     app.logger.info("Someone landed in our page!")
@@ -27,16 +28,24 @@ def index():
 @app.route("/students",methods=['GET'])
 def display_data():
     app.logger.info("Someone request student data")
+    mydb = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        passwd="Mine963258741",
+        database="testdb",
+    )
+    mycursor = mydb.cursor()
+    mycursor.execute("SELECT * FROM students")
+    myresult = mycursor.fetchall()
+    mycursor.close()
+    mydb.close()
+    students = []
+    for row in myresult:
+        students.append(row[0])
     jsonbody = {
-        "students" : [],
+        "students" : students,
     }
-    with open('data.txt', 'r') as f:
-        data = f.read()
-        data = data.split('\n')
-        for item in data:
-            jsonbody["students"].append(item)
-        return jsonify(jsonbody)
-
+    return jsonify(jsonbody)
 
 @app.route("/save/<name>")
 def save(name):
